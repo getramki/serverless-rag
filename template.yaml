@@ -1,0 +1,118 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  serverless-rag-app
+  Sample SAM Template for serverless-rag-app
+
+Resources:
+  IngestionBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-ingest-${AWS::Region}-${AWS::AccountId}"
+  VectorDbBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-vdb-${AWS::Region}-${AWS::AccountId}"
+  
+  VdbIngestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Timeout: 900
+      MemorySize: 512
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          VdbBucketName: !Sub "${AWS::StackName}-vdb-${AWS::Region}-${AWS::AccountId}"         
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: 
+                - 'bedrock:InvokeModel'
+              Resource: '*'
+            - Effect: Allow
+              Action: 
+                - 's3:*'
+              Resource: '*'                
+            - Effect: Allow
+              Action:                
+                - 'logs:CreateLogGroup'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+      Events:
+        S3DocumentUpload:
+          Type: S3
+          Properties:
+            Bucket: !Ref IngestionBucket
+            Events: s3:ObjectCreated:*
+    Metadata:
+      DockerTag: python3.12.vdb-ingest-fun-v1
+      DockerContext: ./vdb-ingest
+      Dockerfile: Dockerfile
+  
+  GenAIQueryAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: GenAIQueryAPI
+      StageName: prod
+
+  VdbQueryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Timeout: 900
+      MemorySize: 512
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          VdbBucketName: !Sub "${AWS::StackName}-vdb-${AWS::Region}-${AWS::AccountId}"         
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: 
+                - 'bedrock:InvokeModel'
+              Resource: '*'
+            - Effect: Allow
+              Action: 
+                - 's3:GetObject'
+                - 's3:List*'
+              Resource: 
+                - !Sub arn:aws:s3:::${AWS::StackName}-vdb-${AWS::Region}-${AWS::AccountId}/*
+                - !Sub arn:aws:s3:::${AWS::StackName}-vdb-${AWS::Region}-${AWS::AccountId}
+            - Effect: Allow
+              Action:                
+                - 'logs:CreateLogGroup'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+      Events:
+        GenAIQueryAPI:
+          Type: Api
+          Properties:
+            Path: /query
+            Method: post
+            RestApiId: !Ref GenAIQueryAPI
+    Metadata:
+      DockerTag: python3.12.vdb-query-fun-v1
+      DockerContext: ./vdb-query
+      Dockerfile: Dockerfile
+
+Outputs:
+  IngestionBucket:
+    Description: "S3 bucket for ingestion"
+    Value: !Ref IngestionBucket
+  VectorDbBucket:
+    Description: "S3 bucket for vector database"
+    Value: !Ref VectorDbBucket
+  VdbQueryFunction:
+    Description: "VDB Query Lambda Function ARN"
+    Value: !GetAtt VdbQueryFunction.Arn
+  VdbQueryFunctionIamRole:
+    Description: "Implicit IAM Role created for VDB Query function"
+    Value: !GetAtt VdbQueryFunctionRole.Arn
+  GenAIQueryAPI:
+    Description: "API Gateway endpoint URL for Prod stage for GenAIQuery function"
+    Value: !Sub "https://${GenAIQueryAPI}.execute-api.${AWS::Region}.amazonaws.com/prod/query"

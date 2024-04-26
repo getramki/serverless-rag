@@ -1,0 +1,6 @@
+boto3
+lancedb
+langchain-community
+langchain-text-splitters
+pandas
+pypdf
