@@ -75,8 +75,6 @@ Authenticate to Public ECR
 Run the SAM Build Command
 <pre><code>sam build</pre></code> 
 
-* Deploy the SAM template. To learn more about SAM you can follow the guide here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started-hello-world.html 
-
 The docker images for the lambda functions are stored in your private ECR registry. While deploying SAM will create these ECR repos for you, but you need to authenticate to ECR before running SAM Deploy.
 
 Run the following command to Authenticate to ECR Private registy
