@@ -53,16 +53,38 @@ After downloading the repo in the terminal Change Directory to repo directory an
 
 * The packages used in this code base langchain_community and lancdb are heavy in size, they don't fit in Lambda Layers as they go beyond 250mb limit. So, we make the docker images of our code and run them as containers with lambda functions. 
 
-* Run the following SAM command to build, it will build docker images and as well makes the repo ready for deployment. 
+* Run the SAM command "sam build" to build, it will build docker images and as well makes the repo ready for deployment. 
 
+* If SAM dosent recognize Rootless Docker
+```
+docker context inspect
+
+export DOCKER_HOST= <GET DOCKER HOST FROM ABOVE CONTEXT INSPECT AND REPLACE HERE>
+
+Example export DOCKER_HOST="unix:///run/user/1000/docker.sock"
+```
+
+* When running  SAM Build command, Docker will build the images based on Lambda Image from the Public ECR repo provided by AWS. You may have to get authenticated to public ECR before you run the SAM Build command. to do that you can run following commands
+
+If you authentecated to ECR before, your token may have been timed out, so logout first
+<pre><code>docker logout public.ecr.aws</pre></code> 
+
+Authenticate to Public ECR
+<pre><code>aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws</pre></code> 
+
+Run the SAM Build Command
 <pre><code>sam build</pre></code> 
 
 * Deploy the SAM template. To learn more about SAM you can follow the guide here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started-hello-world.html 
 
+The docker images for the lambda functions are stored in your private ECR registry. While deploying SAM will create these ECR repos for you, but you need to authenticate to ECR before running SAM Deploy.
+
+Run the following command to Authenticate to ECR Private registy
+<pre><code>aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin <Replace with your Account ID>.dkr.ecr.us-west-2.amazonaws.com</pre></code>
+
 * Run following SAM command to deploy, make sure you agree (type 'y') when SAM asks for confirmation to create IAM roles and deploy the changeset. 
 
 The resources on AWS will be created with the 'stack name' and 'region' you give while running the following command and your aws 'account-id'. You can look at the format in SAM template ‘template.yaml’ in this repo. The resources created can also be found in the CloudFormation's output console. 
-
 <pre><code>sam deploy --guided</pre></code> 
 
 ___ 
