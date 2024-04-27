@@ -176,3 +176,11 @@ Query with Postman
 Query Function Log from Cloud Watch 
 
 ![alt text](https://github.com/getramki/serverless-rag/blob/main/images/Query-Fun-log.png?raw=true) 
+
+___ 
+
+### Clean up the resources created
+
+First empty the contents in the both the S3 buckets then run the following command
+
+<pre><code>sam delete</pre></code>
