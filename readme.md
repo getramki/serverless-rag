@@ -49,7 +49,7 @@ ___
 
 ### Deploy 
 
-After downloading the repo in the terminal Change Directory to repo directory and follow the steps for 
+After downloading the repo in the terminal Change Directory to repo directory and follow the steps below 
 
 * The packages used in this code base langchain_community and lancdb are heavy in size, they don't fit in Lambda Layers as they go beyond 250mb limit. So, we make the docker images of our code and run them as containers with lambda functions. 
 
@@ -57,11 +57,11 @@ After downloading the repo in the terminal Change Directory to repo directory an
 
 <pre><code>sam build</pre></code> 
 
-* Deploy the SAM template. You can follow the guide here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started-hello-world.html 
+* Deploy the SAM template. To learn more about SAM you can follow the guide here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started-hello-world.html 
 
 * Run following SAM command to deploy, make sure you agree (type 'y') when SAM asks for confirmation to create IAM roles and deploy the changeset. 
 
-The resources on AWS will be created with the 'stack name' and 'region' you give while running the following command and your aws 'account-id'. You can look at the format in SAM template ‘template.yaml’. The resources created can also be found in the CloudFormation's output console. 
+The resources on AWS will be created with the 'stack name' and 'region' you give while running the following command and your aws 'account-id'. You can look at the format in SAM template ‘template.yaml’ in this repo. The resources created can also be found in the CloudFormation's output console. 
 
 <pre><code>sam deploy --guided</pre></code> 
 
@@ -113,7 +113,9 @@ ___
 
 ### Querying 
 
-You can invoke the Query function from the API Gateway endpoint with curl or postman. While querying you must pass the "query" along with "category" and "topic" and as well as LLM "config" parameters. The query function reads the lance table with the help of Bedrock Embeddings, gets the context and passes it on to LLM to generate a response. 
+You can invoke the Query function from the API Gateway endpoint with curl or postman. You can get the API Gateway endpoint from the SAM output.
+
+While querying you must pass the "query" along with "category" and "topic" and as well as LLM "config" parameters. The query function reads the lance table with the help of Bedrock Embeddings, gets the context and passes it on to LLM to generate a response. 
 
 In our example you can do the following with curl. This command is provided in test-commands.md file in test-data folder of this repo. 
 
@@ -148,7 +150,7 @@ Query with Curl
 
 Query with Postman 
 
-![alt text](https://github.com/getramki/serverless-rag/blob/main/images/RAG-Query-curl.png?raw=true) 
+![alt text](https://github.com/getramki/serverless-rag/blob/main/images/RAG-Query-Postman.png?raw=true) 
 
  
 Query Function Log from Cloud Watch 
