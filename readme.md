@@ -6,7 +6,7 @@ We convert the knowledge base which is in natural language like PDF files into e
 
 To convert the data in natural language we have to use an embedding model, in our case we use "Amazon-Titan-Text-Embedding" model which is available as serverless offering on Amzon Bedrock. Ingesting the data in vector database after converting natural language data into embedding vectors is done by Ingesting Lambda function in this repo.
 
-Once the data is ingested into vector database we can query it. The query in natural language is again turned into a vector and searched over the vector database. The result is turned back in natural language and it will be given as context to LLM to create a response to the query. This is done by Query Lambda function in this repo.
+Once the data is ingested into vector database we can query it. The query in natural language is again turned into a vector and searched over the vector database. The result is turned back into natural language and it will be given as context to LLM to create a response to the query. This is done by Query Lambda function in this repo.
 ___ 
 
 ### LanceDB - A Vector Database 
